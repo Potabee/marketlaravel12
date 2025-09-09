@@ -1,0 +1,29 @@
+# Compiled frontend assets
+/public/build
+/public/hot
+/public/storage
+
+# Dependency directories
+/node_modules
+/vendor
+
+# Dotenv files
+.env
+.env.backup
+.env.*.php
+.env.php
+
+# IDE helper files
+.idea
+.vscode
+*.iml
+
+# Laravel Log files
+/storage/logs/*.log
+
+# Miscellaneous
+Homestead.json
+Homestead.yaml
+npm-debug.log
+yarn-error.log
+.phpunit.result.cache
