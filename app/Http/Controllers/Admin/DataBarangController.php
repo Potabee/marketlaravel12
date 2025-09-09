@@ -9,6 +9,9 @@ use App\Models\KatBarang;
 use Yajra\DataTables\Facades\DataTables;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Log;
+use App\Models\User;
 
 class DataBarangController extends Controller
 {
@@ -79,6 +82,37 @@ class DataBarangController extends Controller
             'hargajual2'  => $request->hargajual2,
             'hargajual3'  => $request->hargajual3,
         ]);
+
+        try {
+            // Definisikan detail API dan penerima secara langsung
+            $apiUrl = 'http://192.168.0.33:5003/send-message';
+            $nomorTujuan = '6281225500451';
+
+            // Susun pesan notifikasi dari data barang yang baru saja disimpan
+            $namaBarang = $barang->namabarang;
+            $kodeBarang = $barang->kodebarang;
+            $hargaJual = number_format($barang->hargajual1, 0, ',', '.');
+
+            $message = "*Stok Barang Baru Berhasil Ditambahkan*\n\n" .
+                "Nama: *{$namaBarang}*\n" .
+                "Kode: `{$kodeBarang}`\n" .
+                "Harga Jual: Rp {$hargaJual}\n\n" .
+                "Silakan cek sistem untuk detail lebih lanjut.";
+
+            // Kirim request HTTP POST ke API WhatsApp Anda
+            Http::post($apiUrl, [
+                'number' => $nomorTujuan,
+                'message' => $message,
+            ]);
+
+            // (Opsional) Catat ke log bahwa notifikasi berhasil dikirim
+            Log::info("Notifikasi WhatsApp untuk barang baru '{$namaBarang}' telah dikirim ke {$nomorTujuan}.");
+        } catch (\Exception $e) {
+            // Jika pengiriman gagal, proses tidak akan berhenti.
+            // Kegagalan akan dicatat di file log Laravel untuk diperiksa nanti.
+            Log::error('GAGAL MENGIRIM NOTIFIKASI WHATSAPP: ' . $e->getMessage());
+        }
+
 
         return response()->json([
             'success' => true,
